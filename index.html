@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>xxb</title>
+</head>
+<body>
+    
+    <!--添加血小板-->
+    <link rel="stylesheet" href="./live2d/css/live2d.css" />
+    <div id="landlord" style="right:80px; z-index:1">
+        <div id="test">
+            <div class="message" style="opacity:0"></div>
+            <canvas 
+                id="live2d" 
+                width="650" 
+                height="600" 
+                style="
+                    position: relative;
+                    transform: scale(0.325);
+                    transform-origin: 0 0;       /* 保持左上角为变换原点 */
+                    margin-left: 25px;          /* 保持原来的左侧位置 */
+                    margin-top: 55px;       /* 增加负值使模型往下移动 */
+                "
+            ></canvas>
+        </div>
+        <div class="hide-button">隐藏</div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/q-mona/mona@latest/js/jquery.min.js"></script>
+
+    <script type="text/javascript">
+        var message_Path = './live2d/'
+        var home_Path = 'https://q-mona.github.io/'
+    </script>
+
+    <script type="text/javascript" src="./live2d/js/live2d.js"></script>
+    <script type="text/javascript" src="./live2d/js/message.js"></script>
+    <script type="text/javascript">
+        loadlive2d("live2d", "./live2d/model/tia/model.json");
+    </script>
+
+ 
+<!-- 修改移动功能的代码 -->
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        var landlord = document.querySelector('#landlord');
+        var message = document.querySelector('.message');
+        var isFirstMove = true;
+        
+        function moveToRandomPosition() {
+            if (isFirstMove) {
+                // 第一次点击时，先转换定位方式
+                var initialRight = parseInt(getComputedStyle(landlord).right);
+                var windowWidth = window.innerWidth;
+                var initialLeft = windowWidth - landlord.offsetWidth - initialRight;
+                landlord.style.right = '';
+                landlord.style.left = initialLeft + 'px';
+                landlord.style.top = getComputedStyle(landlord).top;
+                
+                // 添加过渡效果
+                landlord.style.transition = 'all 0.5s ease-in-out';
+                isFirstMove = false;
+                
+                // 延迟一帧执行随机移动
+                requestAnimationFrame(() => {
+                    calculateRandomPosition();
+                });
+            } else {
+                calculateRandomPosition();
+            }
+        }
+        
+        function calculateRandomPosition() {
+            // 获取窗口尺寸
+            var windowWidth = window.innerWidth;
+            var windowHeight = window.innerHeight;
+            
+            // 获取模型和message框的尺寸
+            var landlordWidth = landlord.offsetWidth;
+            var landlordHeight = landlord.offsetHeight;
+            var messageWidth = message.offsetWidth;
+            var messageHeight = message.offsetHeight;
+            
+            // 计算message框相对于landlord的偏移量
+            var messageTopOffset = 100;
+            
+            // 计算安全移动范围
+            var horizontalMargin = Math.max(messageWidth, landlordWidth) + 20;
+            var topMargin = messageHeight + messageTopOffset + 40;
+            
+            // 计算有效的移动范围
+            var maxX = windowWidth - horizontalMargin;
+            var maxY = windowHeight - landlordHeight - 20;
+            var minX = horizontalMargin / 2;
+            var minY = topMargin;
+            
+            // 生成有效范围内的随机位置
+            var randomX = Math.random() * (maxX - minX) + minX;
+            var randomY = Math.max(minY, Math.min(maxY, Math.random() * (maxY - minY) + minY));
+            
+            // 额外的安全检查
+            if (randomY - messageTopOffset < messageHeight) {
+                randomY = messageHeight + messageTopOffset + 40;
+            }
+            
+            // 设置新位置
+            landlord.style.left = randomX + 'px';
+            landlord.style.top = randomY + 'px';
+        }
+        
+        // 点击事件处理
+        landlord.addEventListener('click', moveToRandomPosition);
+    });
+</script>
+
+<!-- 修改移动功能的代码 -->
+</body>
+</html>
+
+
